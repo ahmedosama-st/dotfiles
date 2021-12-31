@@ -1,0 +1,27 @@
+set Plug 'tpope/vim-surround'
+set rnu
+set idearefactormode=insert
+set incsearch
+set ideajoin
+set clipboard+=unnamed
+set highlightedyank
+let mapleader = " "
+
+" Editor remaps
+imap jk <Esc>
+nnoremap <M-d> <C-d>
+nnoremap <M-u> <C-u>
+nnoremap s _
+nnoremap e $
+
+" Tabs navigation remapping
+nmap <C-h> <C-w><C-h>
+nmap <C-l> <C-w><C-l>
+nmap <C-j> <C-w><C-j>
+nmap <C-k> <C-w><C-k>
+nmap <leader>. <C-w>o
+nmap <leader>sl :action SplitVertically<cr>
+nmap <leader>sv :action SplitHorizontally<cr>
+nmap <S-k> :action MoveStatementUp<cr>
+nmap <S-j> :action MoveStatementDown<cr>
+nmap gp :action RecentFiles<cr>
