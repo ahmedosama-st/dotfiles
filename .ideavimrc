@@ -1,4 +1,3 @@
-set Plug 'tpope/vim-surround'
 set rnu
 set idearefactormode=insert
 set incsearch
@@ -6,6 +5,7 @@ set ideajoin
 set clipboard+=unnamed
 set highlightedyank
 let mapleader = " "
+set surround
 
 " Editor remaps
 imap jk <Esc>
@@ -20,8 +20,12 @@ nmap <C-l> <C-w><C-l>
 nmap <C-j> <C-w><C-j>
 nmap <C-k> <C-w><C-k>
 nmap <leader>. <C-w>o
+
+" Actions remaps
 nmap <leader>sl :action SplitVertically<cr>
 nmap <leader>sv :action SplitHorizontally<cr>
 nmap <S-k> :action MoveStatementUp<cr>
 nmap <S-j> :action MoveStatementDown<cr>
 nmap gp :action RecentFiles<cr>
+nmap <leader>r :action ReformatCode<cr>
+nmap <leader>sb :action ViewStatusBar<cr>
