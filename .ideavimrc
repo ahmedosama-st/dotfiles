@@ -4,8 +4,10 @@ set incsearch
 set ideajoin
 set clipboard+=unnamed
 set highlightedyank
-let mapleader = " "
 set surround
+set NERDTree
+set scrolloff=18
+let mapleader = " "
 
 " Editor remaps
 imap jk <Esc>
@@ -29,3 +31,10 @@ nmap <S-j> :action MoveStatementDown<cr>
 nmap gp :action RecentFiles<cr>
 nmap <leader>r :action ReformatCode<cr>
 nmap <leader>sb :action ViewStatusBar<cr>
+nmap <leader>gi :action GotoImplementation<cr>
+nmap <leader>gs :action GotoSuperMethod<cr>
+nmap <leader>gd :action GotoDeclaration<cr>
+nmap <leader>ghb :action Git.Branches<cr>
+nmap <leader>ghp :action Git.Pull<cr>
+nmap <leader>ghr :action Git.Configure.Remotes<cr>
+

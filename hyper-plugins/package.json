@@ -1,0 +1,19 @@
+{
+  "name": "hyper-plugins",
+  "description": "Auto-generated from `~/.hyper.js`!",
+  "private": true,
+  "version": "0.0.1",
+  "repository": "vercel/hyper",
+  "license": "MIT",
+  "homepage": "https://hyper.is",
+  "dependencies": {
+    "hyper-rename-tab": "latest",
+    "hyper-night-owl": "latest",
+    "hyper-opacity": "latest",
+    "hyper-pane": "latest",
+    "gitrocket": "latest",
+    "hypercwd": "latest",
+    "hyperterm-tabs": "latest",
+    "hyper-alt-click": "latest"
+  }
+}

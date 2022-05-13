@@ -1,3 +1,5 @@
+# Fig pre block. Keep at the top of this file.
+. "$HOME/.fig/shell/zshrc.pre.zsh"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -63,6 +65,8 @@ ZSH_THEME="zeta"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
+ZSH_DISABLE_COMPFIX=true
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -95,13 +99,13 @@ alias zshrc="vim $HOME/.zshrc"
 alias ohmyzsh="vim $HOME/.oh-my-zsh"
 alias src="source $HOME/.zshrc"
 alias cpssh="pbcopy < ~/.ssh/id_ed25519.pub"
+alias ports="sudo lsof -PiTCP -sTCP:LISTEN"
 
 #hugo
-export PATH=$PATH
+export PATH="$HOME/.symfony/bin:$HOME/.composer/vendor/bin:/Applications/Sublime Text.app/Contents/SharedSupport/bin:$PATH"
 
 
 # Artisan aliases
-
 alias pa="php artisan"
 alias par:l='php artisan route:list'
 alias pam='php artisan migrate'
@@ -110,25 +114,23 @@ alias pam:r='php artisan migrate:refresh'
 alias pam:fs="php artisan migrate:fresh --seed"
 alias pam:rs='php artisan migrate:refresh --seed'
 alias serve="pa serve"
-alias tinker="pa tinker"
+alias pat="pa tinker"
 
 
 # Testing aliases
-
 alias unit="./vendor/bin/phpunit "
 alias pf="phpunit --filter "
 
 
 # GIT aliases
-
 alias ga="git add"
 alias gr="git remote add"
 alias gs="git status"
 alias gchk="git checkout"
 alias gpm="git push --set-upstream origin master"
 alias gb="git checkout -b"
-alias gc="git commit -m"
-alias gp="git push"
+alias gi="git add -A && git commit -m"
+alias gp="git push origin master"
 alias gpf="git push -f"
 alias gpl="git pull"
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
@@ -137,17 +139,26 @@ alias nah="git reset --hard;git clean -df"
 alias dracarys="git reset --hard;git clean -df"
 
 # Composer aliases
-
 alias cdo="composer dump-autoload -o"
 alias ci="composer install"
 alias cu="composer update"
 alias cr="composer require"
 
 # Youtube aliases
-
 alias mp3="youtube-dl --extract-audio --audio-format mp3 "
 alias mp4="youtube-dl -f 'bestvideo+bestaudio/best' "
 alias ydl="youtube-dl "
+
+# Spryker aliases
+alias sds="docker/sdk "
+alias scs="docker/sdk console c:s:s -f -m "
+
+# Symfony aliases
+alias sc="symfony console "
+alias scm="symfony console doctrine:migrations:migrate"
+alias ss="symfony serve -d"
+alias sss="symfony server:stop"
+alias smm="symfony console make:migration"
 
 #antigen
 source ~/antigen.zsh
@@ -180,3 +191,11 @@ function wlop() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export GITHUB_TOKEN=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
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"
+[ -s "/usr/local/opt/nvm/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/bash_completion.d/nvm"
+
+# Fig post block. Keep at the bottom of this file.
+. "$HOME/.fig/shell/zshrc.post.zsh"
