@@ -1,4 +1,5 @@
 set rnu
+set number
 set idearefactormode=insert
 set incsearch
 set ideajoin
@@ -22,6 +23,8 @@ nmap <C-l> <C-w><C-l>
 nmap <C-j> <C-w><C-j>
 nmap <C-k> <C-w><C-k>
 nmap <leader>. <C-w>o
+nmap <M-d> <C-d>
+nmap <M-u> <C-u>
 
 " Actions remaps
 nmap <leader>sl :action SplitVertically<cr>
@@ -29,12 +32,24 @@ nmap <leader>sv :action SplitHorizontally<cr>
 nmap <S-k> :action MoveStatementUp<cr>
 nmap <S-j> :action MoveStatementDown<cr>
 nmap gp :action RecentFiles<cr>
+nmap ge :action GotoNextError<cr>
+nmap gE :action GotoPreviousError<cr>
+nmap <leader><leader> :action ShowErrorDescription<cr>
 nmap <leader>r :action ReformatCode<cr>
+nmap <leader>o :action OptimizeImports<cr>
 nmap <leader>sb :action ViewStatusBar<cr>
 nmap <leader>gi :action GotoImplementation<cr>
 nmap <leader>gs :action GotoSuperMethod<cr>
-nmap <leader>gd :action GotoDeclaration<cr>
 nmap <leader>ghb :action Git.Branches<cr>
 nmap <leader>ghp :action Git.Pull<cr>
 nmap <leader>ghr :action Git.Configure.Remotes<cr>
-
+nmap ,l :action ChooseRunConfiguration<cr>
+nmap ,; :action ChooseDebugConfiguration<cr>
+nmap <leader>ghd :action Compare.SameVersion<cr>
+nmap <leader>se :action com.turbinekreuzberg.plugins.actions.ExtendInPyzAction<cr>
+nmap <leader>dp :action ToggleLineBreakpoint<cr>
+nnoremap <leader>k :action Refactorings.QuickListPopupAction<CR>
+nmap <leader>lrw :e routes/web.php<cr>
+nmap <leader>lra :e routes/api.php<cr>
+nmap <leader>xdl :action PhpListenDebugAction<cr>
+nmap <leader>cg :action Generate<cr>

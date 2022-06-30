@@ -1,5 +1,5 @@
 # Fig pre block. Keep at the top of this file.
-. "$HOME/.fig/shell/zshrc.pre.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -10,7 +10,7 @@ export ZSH="/Users/ahmedosama/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="zeta"
+ZSH_THEME="spaceship"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -95,15 +95,17 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 #
 # zsh aliases
+alias ps="phpstorm ."
+alias ws="webstorm ."
 alias zshrc="vim $HOME/.zshrc"
 alias ohmyzsh="vim $HOME/.oh-my-zsh"
 alias src="source $HOME/.zshrc"
 alias cpssh="pbcopy < ~/.ssh/id_ed25519.pub"
 alias ports="sudo lsof -PiTCP -sTCP:LISTEN"
+alias notify='terminal-notifier -title "Terminal" -message "Done with task! Exit status: $?" -sound "default"' -activate com.apple.Terminal
 
 #hugo
-export PATH="$HOME/.symfony/bin:$HOME/.composer/vendor/bin:/Applications/Sublime Text.app/Contents/SharedSupport/bin:$PATH"
-
+export PATH="$HOME/.symfony/bin:$HOME/.composer/vendor/bin:/Applications/Sublime Text.app/Contents/SharedSupport/bin:/opt/homebrew/bin:$PATH"
 
 # Artisan aliases
 alias pa="php artisan"
@@ -123,18 +125,17 @@ alias pf="phpunit --filter "
 
 
 # GIT aliases
-alias ga="git add"
 alias gr="git remote add"
+alias gpu="git push --set-upstream origin master"
 alias gs="git status"
-alias gchk="git checkout"
-alias gpm="git push --set-upstream origin master"
+alias gch="git checkout"
+alias gc="git clone "
 alias gb="git checkout -b"
 alias gi="git add -A && git commit -m"
 alias gp="git push origin master"
 alias gpf="git push -f"
 alias gpl="git pull"
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-alias gaa="git add --all"
 alias nah="git reset --hard;git clean -df"
 alias dracarys="git reset --hard;git clean -df"
 
@@ -150,52 +151,57 @@ alias mp4="youtube-dl -f 'bestvideo+bestaudio/best' "
 alias ydl="youtube-dl "
 
 # Spryker aliases
-alias sds="docker/sdk "
-alias scs="docker/sdk console c:s:s -f -m "
+alias sp:off="docker/sdk down; docker system prune --all --volumes -f; docker/sdk clean-data; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
+alias sp:on="docker/sdk boot deploy.dev.yml; docker/sdk up; notify";
+alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; code docker;"
+function import() {
+    local importer="${1-}"
+    if [ -z "$importer" ]
+    then
+        docker/sdk console data:import;
+     else 
+        docker/sdk console data:import:$importer;
+    fi
+   
+    docker/sdk console queue:worker:start;
+    docker/sdk console cache:empty-all;
+}
 
 # Symfony aliases
 alias sc="symfony console "
-alias scm="symfony console doctrine:migrations:migrate"
 alias ss="symfony serve -d"
 alias sss="symfony server:stop"
-alias smm="symfony console make:migration"
-
-#antigen
-source ~/antigen.zsh
-
-# Load the oh-my-zsh's library
-antigen use oh-my-zsh
-
-antigen bundles <<EOBUNDLES
-    git
-    github
-    node
-    npm
-    command-not-found
-    oz/safe-paste
-    zsh-users/zsh-syntax-highlighting
-    zsh-users/zsh-autosuggestions
-    zsh-users/zsh-completions
-    zsh-users/zsh-history-substring-search
-EOBUNDLES
-
-# Tell antigen that you're done
-antigen apply
-
+alias sc:dc="symfony console debug:config "
+alias sc:dco="symfony console debug:container "
+alias sc:ddd="symfony console doctrine:database:drop --force"
+alias sc:ddc="symfony console doctrine:database:create"
+alias sc:dmm="symfony console doctrine:migrations:migrate"
+alias sc:dfl="symfony console doctrine:fixtures:load"
+alias sc:mm="symfony console make:migration"
+alias sc:me="symfony console make:entity"
+alias sc:mf="symfony console make:factory"
+alias sc:mu="symfony console make:user"
+alias sc:mc="symfony console make:controller"
+alias sc:mv="symfony console make:voter"
+alias sc:ms="symfony console make:subscriber"
 
 
 function wlop() {
     lsof -nP -i4TCP:"$1" | grep LISTEN
 }
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=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
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"
-[ -s "/usr/local/opt/nvm/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/bash_completion.d/nvm"
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 # Fig post block. Keep at the bottom of this file.
-. "$HOME/.fig/shell/zshrc.post.zsh"
+if [[ $TERM_PROGRAM != "WarpTerminal" ]]; then
+    . "$HOME/.fig/shell/zshrc.post.zsh"
+fi
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
