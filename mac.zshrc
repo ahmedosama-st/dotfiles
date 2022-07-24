@@ -1,5 +1,3 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -126,18 +124,22 @@ alias pf="phpunit --filter "
 
 # GIT aliases
 alias gr="git remote add"
-alias gpu="git push --set-upstream origin master"
+alias gp="git push"
 alias gs="git status"
-alias gch="git checkout"
-alias gc="git clone "
 alias gb="git checkout -b"
 alias gi="git add -A && git commit -m"
-alias gp="git push origin master"
-alias gpf="git push -f"
 alias gpl="git pull"
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias nah="git reset --hard;git clean -df"
 alias dracarys="git reset --hard;git clean -df"
+function gpo() { git push origin $(git symbolic-ref HEAD --short) }
+function gpu() {git push --set-upstream origin $(git symbolic-ref HEAD --short)}
+function gc() {
+      local branches branch
+      branches=$(git branch -vv) &&
+      branch=$(echo "$branches" | fzf +m) &&
+      git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+}
 
 # Composer aliases
 alias cdo="composer dump-autoload -o"
@@ -153,17 +155,27 @@ alias ydl="youtube-dl "
 # Spryker aliases
 alias sp:off="docker/sdk down; docker system prune --all --volumes -f; docker/sdk clean-data; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
 alias sp:on="docker/sdk boot deploy.dev.yml; docker/sdk up; notify";
-alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; code docker;"
+alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; subl docker;"
+alias sp:cs="docker/sdk console c:s:s"
+function sp:csf() {
+    local module="${1-}"
+    if [ -z "$module" ]
+    then
+        docker/sdk console c:s:s -f;
+     else 
+        docker/sdk console c:s:s -f $module;
+    fi
+}
 function import() {
     local importer="${1-}"
-    if [ -z "$importer" ]
+    if [ -z "$importer" ] || [[ $importer == -f* ]]
     then
-        docker/sdk console data:import;
+        docker/sdk console data:import $@;
      else 
-        docker/sdk console data:import:$importer;
+        docker/sdk console data:import:$importer ${@:2};
     fi
    
-    docker/sdk console queue:worker:start;
+    docker/sdk console queue:worker:start -s;
     docker/sdk console cache:empty-all;
 }
 
@@ -171,6 +183,7 @@ function import() {
 alias sc="symfony console "
 alias ss="symfony serve -d"
 alias sss="symfony server:stop"
+alias sc:dr="symfony console debug:router"
 alias sc:dc="symfony console debug:config "
 alias sc:dco="symfony console debug:container "
 alias sc:ddd="symfony console doctrine:database:drop --force"
@@ -184,13 +197,14 @@ alias sc:mu="symfony console make:user"
 alias sc:mc="symfony console make:controller"
 alias sc:mv="symfony console make:voter"
 alias sc:ms="symfony console make:subscriber"
+alias sc:msn="symfony console make:serializer:normalizer"
 
 
 function wlop() {
     lsof -nP -i4TCP:"$1" | grep LISTEN
 }
 
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=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
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
@@ -202,6 +216,3 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 if [[ $TERM_PROGRAM != "WarpTerminal" ]]; then
     . "$HOME/.fig/shell/zshrc.post.zsh"
 fi
-
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
