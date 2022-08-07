@@ -51,5 +51,7 @@ nmap <leader>dp :action ToggleLineBreakpoint<cr>
 nnoremap <leader>k :action Refactorings.QuickListPopupAction<CR>
 nmap <leader>lrw :e routes/web.php<cr>
 nmap <leader>lra :e routes/api.php<cr>
+nmap <leader>sry :vsplit src/Generated/Yves/Router/codeBucketDE/Pyz/url_generating_routes.php<cr>
+nmap <leader>srz :vsplit src/Generated/Router/Backoffice/codeBucketDE/url_generating_routes.php<cr>
 nmap <leader>xdl :action PhpListenDebugAction<cr>
 nmap <leader>cg :action Generate<cr>

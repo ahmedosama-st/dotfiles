@@ -1,3 +1,5 @@
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -155,24 +157,48 @@ alias ydl="youtube-dl "
 # Spryker aliases
 alias sp:off="docker/sdk down; docker system prune --all --volumes -f; docker/sdk clean-data; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
 alias sp:on="docker/sdk boot deploy.dev.yml; docker/sdk up; notify";
-alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; subl docker;"
-alias sp:cs="docker/sdk console c:s:s"
-function sp:csf() {
-    local module="${1-}"
-    if [ -z "$module" ]
-    then
-        docker/sdk console c:s:s -f;
-     else 
-        docker/sdk console c:s:s -f $module;
-    fi
+alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; gsed -i 's/export COMPOSE_CONVERT_WINDOWS_PATHS=1/export COMPOSE_CONVERT_WINDOWS_PATHS=0/g' 'docker/bin/environment/docker-compose.sh'"
+function replaceSprykerGitHook()
+{
+    gsed -i 's/# To enable this hook, rename this file to "pre-commit"./echo "======== Fixing code style ======";\n docker\/sdk console c:s:s -f;\n echo "===== Checking non-fixable code style =========";\n docker\/sdk console c:s:s;\n echo "============ PHP MD ==========";\n docker\/sdk cli vendor\/bin\/phpmd src\/ text vendor\/spryker\/architecture-sniffer\/src\/ruleset.xml --minimumpriority 2;\n echo "============ PHP Stan ===========";\n docker\/sdk cli vnedor\/bin\/phpstan analyze -l 4 -c phpstan.neon src\/ --debug; /g' ".git/hooks/pre-commit"
 }
-function import() {
+function sp:install() {
+    local repo="${1-}";
+
+    hub clone spryker-projects/$repo;
+    cd $repo;
+    sp:dd;
+    mv .git/hooks/pre-commit.sample .git/hooks/pre-commit;
+    replaceSprykerGitHook();
+    sp:on;
+}
+
+
+function sp:csc() {
+    echo "=================== Fixing code styling ===============";
+    docker/sdk console c:s:s -f;
+
+    echo "=================== Checking non-fixable code styling ===============";
+    docker/sdk console c:s:s;
+
+    echo "=================== PHP MD ===============";
+    docker/sdk cli vendor/bin/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2
+
+    echo "=================== PHP Stan ===============";
+    docker/sdk cli vendor/bin/phpstan analyze -l 4 -c phpstan.neon src/ --debug
+}
+function sp:import() {
     local importer="${1-}"
-    if [ -z "$importer" ] || [[ $importer == -f* ]]
+    if [ -z "$importer" ] 
     then
         docker/sdk console data:import $@;
      else 
-        docker/sdk console data:import:$importer ${@:2};
+         if [[ $importer == -* ]] || [[ $importer == --* ]]
+         then
+            docker/sdk console data:import $@;
+        else
+            docker/sdk console data:import:$importer ${@:2};
+         fi
     fi
    
     docker/sdk console queue:worker:start -s;
@@ -204,7 +230,7 @@ function wlop() {
     lsof -nP -i4TCP:"$1" | grep LISTEN
 }
 
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=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
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
@@ -216,3 +242,6 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 if [[ $TERM_PROGRAM != "WarpTerminal" ]]; then
     . "$HOME/.fig/shell/zshrc.post.zsh"
 fi
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
