@@ -158,22 +158,25 @@ alias ydl="youtube-dl "
 alias sp:off="docker/sdk down; docker system prune --all --volumes -f; docker/sdk clean-data; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
 alias sp:on="docker/sdk boot deploy.dev.yml; docker/sdk up; notify";
 alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; gsed -i 's/export COMPOSE_CONVERT_WINDOWS_PATHS=1/export COMPOSE_CONVERT_WINDOWS_PATHS=0/g' 'docker/bin/environment/docker-compose.sh'"
-function replaceSprykerGitHook()
-{
-    gsed -i 's/# To enable this hook, rename this file to "pre-commit"./echo "======== Fixing code style ======";\n docker\/sdk console c:s:s -f;\n echo "===== Checking non-fixable code style =========";\n docker\/sdk console c:s:s;\n echo "============ PHP MD ==========";\n docker\/sdk cli vendor\/bin\/phpmd src\/ text vendor\/spryker\/architecture-sniffer\/src\/ruleset.xml --minimumpriority 2;\n echo "============ PHP Stan ===========";\n docker\/sdk cli vnedor\/bin\/phpstan analyze -l 4 -c phpstan.neon src\/ --debug; /g' ".git/hooks/pre-commit"
+function sp:install () {
+	local repo="${1-}"
+	local env="$(uname -m)"
+	hub clone spryker-projects/$repo
+	cd $repo
+	git clone git@github.com:spryker/docker-sdk.git docker
+	if [[ $env == "arm64" ]]
+	then
+		cd docker
+		git checkout apple-m1-adjustments
+		cd ../
+		gsed -i 's/export COMPOSE_CONVERT_WINDOWS_PATHS=1/export COMPOSE_CONVERT_WINDOWS_PATHS=0/g' 'docker/bin/environment/docker-compose.sh'
+	fi
+	rm .git/hooks/pre-commit.sample
+	cp ~/dotfiles/spryker.pre-commit.sample .git/hooks/pre-commit
+	docker/sdk boot deploy.dev.yml
+	docker/sdk up
+	terminal-notifier -title "Terminal" -message "Done with task! Exit status: $?" -sound "default"
 }
-function sp:install() {
-    local repo="${1-}";
-
-    hub clone spryker-projects/$repo;
-    cd $repo;
-    sp:dd;
-    mv .git/hooks/pre-commit.sample .git/hooks/pre-commit;
-    replaceSprykerGitHook();
-    sp:on;
-}
-
-
 function sp:csc() {
     echo "=================== Fixing code styling ===============";
     docker/sdk console c:s:s -f;
@@ -230,7 +233,7 @@ function wlop() {
     lsof -nP -i4TCP:"$1" | grep LISTEN
 }
 
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=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
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
@@ -242,6 +245,3 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 if [[ $TERM_PROGRAM != "WarpTerminal" ]]; then
     . "$HOME/.fig/shell/zshrc.post.zsh"
 fi
-
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
