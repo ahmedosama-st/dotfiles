@@ -138,9 +138,15 @@ function gpo() { git push origin $(git symbolic-ref HEAD --short) }
 function gpu() {git push --set-upstream origin $(git symbolic-ref HEAD --short)}
 function gc() {
       local branches branch
+      local skip=${1:-}
+
       branches=$(git branch -vv) &&
       branch=$(echo "$branches" | fzf +m) &&
-      git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+      if [[ $skip == "-s" ]]; then
+          SKIP=1 git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+      else
+          git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+      fi
 }
 
 # Composer aliases
@@ -158,6 +164,7 @@ alias ydl="youtube-dl "
 alias sp:off="docker/sdk down; docker system prune --all --volumes -f; docker/sdk clean-data; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
 alias sp:on="docker/sdk boot deploy.dev.yml; docker/sdk up; notify";
 alias sp:dd="git clone git@github.com:spryker/docker-sdk.git docker; cd docker; git checkout apple-m1-adjustments; cd ../; gsed -i 's/export COMPOSE_CONVERT_WINDOWS_PATHS=1/export COMPOSE_CONVERT_WINDOWS_PATHS=0/g' 'docker/bin/environment/docker-compose.sh'"
+alias sp:cc="docker/sdk console cache:class-resolver:build; docker/sdk console cache:empty-all; docker/sdk console navigation:build-cache; docker/sdk console router:cache:warm-up; docker/sdk console router:cache:warm-up:backoffice; docker/sdk console translator:clean-cache; docker/sdk console translator:generate-cache; docker/sdk console twig:cache:warmer";
 function sp:install () {
 	local repo="${1-}"
 	local env="$(uname -m)"
@@ -173,6 +180,9 @@ function sp:install () {
 	fi
 	rm .git/hooks/pre-commit.sample
 	cp ~/dotfiles/spryker.pre-commit.sample .git/hooks/pre-commit
+	cp ~/dotfiles/spryker.post-checkout.sample .git/hooks/post-checkout
+    chmod +x .git/hooks/pre-commit
+    chmod +x .git/hooks/post-checkout
 	docker/sdk boot deploy.dev.yml
 	docker/sdk up
 	terminal-notifier -title "Terminal" -message "Done with task! Exit status: $?" -sound "default"
@@ -233,7 +243,8 @@ function wlop() {
     lsof -nP -i4TCP:"$1" | grep LISTEN
 }
 
-export GITHUB_TOKEN=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
+
+export GITHUB_TOKEN=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
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
