@@ -6,6 +6,7 @@
 # it wants to stop the commit.
 #
 # To enable this hook, rename this file to "pre-commit".
+[ "$SKIP" = 1 ] && exit 0
 
 echo "=================== Fixing code styling ===============";
 docker/sdk console c:s:s -f;

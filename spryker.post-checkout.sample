@@ -6,6 +6,7 @@
 # it wants to stop the commit.
 #
 # To enable this hook, rename this file to "post-checkout".
+[ "$SKIP" = 1 ] && exit 0
 
 echo "========== Clearing all caches ==========";
 docker/sdk console cache:class-resolver:build;
