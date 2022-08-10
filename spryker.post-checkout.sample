@@ -27,3 +27,5 @@ docker/sdk up;
 echo "========== Generating transfers and database migrations ==========";
 docker/sdk console transfer:generate;
 docker/sdk console propel:install;
+
+terminal-notifier -title "Terminal" -message "Done with task! Exit status: $?" -sound "default";
