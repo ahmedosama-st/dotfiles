@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "post-checkout".
+
+echo "========== Clearing all caches ==========";
+docker/sdk console cache:class-resolver:build;
+docker/sdk console cache:empty-all;
+docker/sdk console navigation:build-cache;
+docker/sdk console router:cache:warm-up;
+docker/sdk console router:cache:warm-up:backoffice;
+docker/sdk console translator:clean-cache;
+docker/sdk console translator:generate-cache;
+docker/sdk console twig:cache:warmer;
+
+
+echo "========== Running destructive deployment ==========";
+docker/sdk cli vendor/bin/install -r EU/destructive;
+
+echo "========== Booting the project again in the current branch ==========";
+docker/sdk up;
+
+echo "========== Generating transfers and database migrations ==========";
+docker/sdk console transfer:generate;
+docker/sdk console propel:install;
