@@ -21,9 +21,6 @@ docker/sdk console twig:cache:warmer;
 echo "========== Running destructive deployment ==========";
 docker/sdk cli vendor/bin/install -r EU/destructive;
 
-echo "========== Booting the project again in the current branch ==========";
-docker/sdk up;
-
 echo "========== Generating transfers and database migrations ==========";
 docker/sdk console transfer:generate;
 docker/sdk console propel:install;
