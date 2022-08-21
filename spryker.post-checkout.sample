@@ -12,7 +12,6 @@ echo "========== Clearing all caches ==========";
 docker/sdk console cache:class-resolver:build;
 docker/sdk console cache:empty-all;
 docker/sdk console navigation:build-cache;
-docker/sdk console router:cache:warm-up;
 docker/sdk console router:cache:warm-up:backoffice;
 docker/sdk console translator:clean-cache;
 docker/sdk console translator:generate-cache;
