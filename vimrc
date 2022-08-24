@@ -31,4 +31,5 @@ nnoremap e $
 nnoremap ,. :!php %<cr>
 nnoremap ,l :!node %<cr>
 nnoremap ,; :!ts-node %<cr>
+nnoremap ,, :!rustc %; ./main<cr>
 

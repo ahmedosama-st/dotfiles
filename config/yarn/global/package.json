@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "create-completion-spec": "^1.1.8"
+  }
+}
