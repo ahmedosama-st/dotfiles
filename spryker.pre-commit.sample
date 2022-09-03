@@ -13,12 +13,27 @@ docker/sdk console c:s:s -f;
 
 echo "=================== Checking non-fixable code styling ===============";
 docker/sdk console c:s:s;
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
 
 echo "=================== PHP MD ===============";
 docker/sdk cli vendor/bin/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
 
  echo "=================== PHP Stan ===============";
  docker/sdk cli vendor/bin/phpstan analyze -l 4 -c phpstan.neon src/ --debug;
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
 
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
