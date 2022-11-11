@@ -8,21 +8,20 @@
 # To enable this hook, rename this file to "post-checkout".
 [ "$SKIP" = 1 ] && exit 0
 
-echo "========== Clearing all caches ==========";
-docker/sdk console cache:class-resolver:build;
-docker/sdk console cache:empty-all;
-docker/sdk console navigation:build-cache;
-docker/sdk console router:cache:warm-up:backoffice;
-docker/sdk console translator:clean-cache;
-docker/sdk console translator:generate-cache;
-docker/sdk console twig:cache:warmer;
-
-
-echo "========== Running destructive deployment ==========";
-docker/sdk cli vendor/bin/install -r EU/destructive;
-
-echo "========== Generating transfers and database migrations ==========";
-docker/sdk console transfer:generate;
-docker/sdk console propel:install;
+echo "=================== Preparing new branch ==============="
+docker/sdk cli composer install
+docker/sdk cli composer dump-autoload -o
+docker/sdk console cache:class-resolver:build
+docker/sdk console twig:cache:warmer
+docker/sdk console dev:ide-auto-completion:client:generate
+docker/sdk console dev:ide-auto-completion:glue:generate
+docker/sdk console dev:ide-auto-completion:service:generate
+docker/sdk console dev:ide-auto-completion:yves:generate
+docker/sdk console dev:ide-auto-completion:zed:generate
+docker/sdk console transfer:generate
+docker/sdk console propel:install
+docker/sdk console data:import
+docker/sdk console queue:worker:start -s
+docker/sdk console cache:empty-all
 
 terminal-notifier -title "Terminal" -message "Done with task! Exit status: $?" -sound "default";

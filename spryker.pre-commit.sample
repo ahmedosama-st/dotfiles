@@ -8,27 +8,85 @@
 # To enable this hook, rename this file to "pre-commit".
 [ "$SKIP" = 1 ] && exit 0
 
-echo "=================== Fixing code styling ===============";
-docker/sdk console c:s:s -f;
-
-echo "=================== Checking non-fixable code styling ===============";
-docker/sdk console c:s:s;
+echo "=================== Validating propel files ==============="
+docker/sdk cli vendor/bin/console propel:schema:validate
 x=$?
 if [ $x != 0 ]
 then
   exit $x;
 fi
-
-echo "=================== PHP MD ===============";
+echo "=================== Validating transfers ==============="
+docker/sdk cli vendor/bin/console transfer:validate
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Fixing stylelint ==============="
+docker/sdk cli npm run yves:stylelint:fix
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Fixing TSlint ==============="
+docker/sdk cli npm run yves:tslint:fix
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Fixing TSlint ==============="
+docker/sdk cli npm run formatter:fix
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Validating FE stylelint ==============="
+docker/sdk cli npm run yves:stylelint
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Validating TSlint ==============="
+docker/sdk cli npm run yves:tslint
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Validating formatter ==============="
+docker/sdk cli npm run formatter
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Fixing code styling ==============="
+docker/sdk cli vendor/bin/console code:sniff:style -f
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== Checking non-fixable code styling ==============="
+docker/sdk cli vendor/bin/console code:sniff:style
+x=$?
+if [ $x != 0 ]
+then
+  exit $x;
+fi
+echo "=================== PHP MD ==============="
 docker/sdk cli vendor/bin/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2
 x=$?
 if [ $x != 0 ]
 then
   exit $x;
 fi
-
- echo "=================== PHP Stan ===============";
- docker/sdk cli vendor/bin/phpstan analyze -l 4 -c phpstan.neon src/ --debug;
+echo "=================== PHP Stan ==============="
+docker/sdk cli vendor/bin/phpstan analyze -l 5 -c phpstan.neon src/
 x=$?
 if [ $x != 0 ]
 then

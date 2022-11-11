@@ -1,3 +1,0 @@
-[user]
-    name = Ahmed Osama
-    email = ahmed.osama@spryker.com
