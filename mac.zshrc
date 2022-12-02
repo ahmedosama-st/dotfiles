@@ -20,6 +20,7 @@ alias act="act --container-architecture linux/amd64";
 export PATH="$HOME/.symfony/bin:$HOME/.composer/vendor/bin:/Applications/Sublime Text.app/Contents/SharedSupport/bin:/opt/homebrew/bin:$PATH"
 
 # Artisan aliases
+alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
 alias pa="php artisan"
 alias par:l='php artisan route:list'
 alias pam='php artisan migrate'
@@ -35,6 +36,15 @@ alias pat="pa tinker"
 alias unit="./vendor/bin/phpunit "
 alias pf="phpunit --filter "
 
+
+# Github aliases
+alias ghc="gh pr create"
+alias ghv="gh pr view --web"
+function ght() {
+    local currentBranch=$(git branch --show-current --abbrev);
+    local ticketNumber=$(echo "$currentBranch" | cut -d '-' -f1 -f2 | cut -d '_' -f1);
+    open https://spryker.atlassian.net/browse/$ticketNumber;
+}
 
 # GIT aliases
 alias gr="git remote add"
@@ -56,27 +66,28 @@ function gfl () {
     fi
 }
 function gi() {
+    git restore phpstan.neon
     local message=${1:-}
     local skip=${2:-}
+    local currentBranch=$(git branch --show-current --abbrev);
+    local ticketNumber=$(echo "$currentBranch" | cut -d '-' -f1 -f2 | cut -d '_' -f1);
 
     git add -A;
 
     if [[ $skip == "-s" ]]; then
-        git commit --no-verify -m $message;
+        git commit --no-verify -m "$ticketNumber: $message";
     else
-        git commit -m $message;
+        git commit -m "$ticketNumber: $message";
     fi
+    cp ~/dotfiles/phpstan.neon .
 }
 #function gc() {
-#      local branches branch
 #      local skip=${1:-}
 #
-#      branches=$(git branch -a -vv) &&
-#      branch=$(echo "$branches" | fzf +m) &&
 #      if [[ $skip == "-s" ]]; then
-#          SKIP=1 git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+#          SKIP=1 git checkout 
 #      else
-#          git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+#          git checkout 
 #      fi
 #}
 
@@ -92,64 +103,123 @@ alias mp4="youtube-dl -f 'bestvideo+bestaudio/best' "
 alias ydl="youtube-dl "
 
 # Spryker aliases
-alias sp:off="docker/sdk down; docker system prune --all --volumes -f; docker/sdk clean-data; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
-alias sp:on="docker/sdk boot deploy.dev.yml; docker/sdk up; notify";
+alias spy="docker/sdk ";
+alias sp:off="spy down; docker system prune -a --volumes -f; spy clean-data; spy clean; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
+alias sp:on="spy boot deploy.dev.yml; spy up; notify";
+alias sp:reset="sp:off && sp:on";
+alias sp:cdo="docker/sdk cli composer dump-autoload -o";
+alias sp:cr="docker/sdk cli composer require ";
+alias sp:ci="docker/sdk cli composer install";
+alias sp:ce="spy console c:e";
 function  sp:cc
 {
-    docker/sdk console cache:class-resolver:build;
-    docker/sdk console cache:empty-all;
-    docker/sdk console navigation:build-cache;
-    docker/sdk console router:cache:warm-up:backoffice;
-    docker/sdk console router:cache:warm-up:backend-gateway;
-    docker/sdk console translator:clean-cache;
-    docker/sdk console translator:generate-cache;
-    docker/sdk console twig:cache:warmer;
-    docker/sdk console dev:ide-auto-completion:client:generate;
-    docker/sdk console dev:ide-auto-completion:glue:generate;
-    docker/sdk console dev:ide-auto-completion:service:generate;
-    docker/sdk console dev:ide-auto-completion:yves:generate;
-    docker/sdk console dev:ide-auto-completion:zed:generate;
-    docker/sdk console transfer:generate;
-    docker/sdk console propel:install;
+    spy cli composer dump-autoload -o;
+    spy console cache:class-resolver:build;
+    spy console search:setup:source-map;
+    spy console cache:empty-all;
+    spy console navigation:build-cache;
+    spy console router:cache:warm-up:backoffice;
+    spy console router:cache:warm-up:backend-gateway;
+    spy console translator:clean-cache;
+    spy console translator:generate-cache;
+    spy console twig:cache:warmer;
+    spy console dev:ide-auto-completion:client:generate;
+    spy console dev:ide-auto-completion:glue:generate;
+    spy console dev:ide-auto-completion:service:generate;
+    spy console dev:ide-auto-completion:yves:generate;
+    spy console dev:ide-auto-completion:zed:generate;
+    spy console transfer:generate;
+    spy console propel:install;
+    sp:import;
 }
 function sp:install () {
 	local repo="${1-}"
-	local env="$(uname -m)"
+
 	hub clone spryker-projects/$repo
 	cd $repo
+
+    echo "Enter your git work email: "
+    terminal-notifier -title "Terminal" -message "Prompt for work email" -sound "default" -activate com.apple.Terminal
+    read work_email
+    git config user.email $work_email
+
 	git clone git@github.com:spryker/docker-sdk.git docker
-	rm .git/hooks/pre-commit.sample
-	cp ~/dotfiles/spryker.pre-commit.sample .git/hooks/pre-commit
-	cp ~/dotfiles/spryker.post-checkout.sample .git/hooks/post-checkout
-    chmod +x .git/hooks/pre-commit
-    chmod +x .git/hooks/post-checkout
-    if [[ $env == "arm64" ]]
-	then
-		cd docker
-		git checkout apple-m1-adjustments
-		cd ../
-		#gsed -i 's/export COMPOSE_CONVERT_WINDOWS_PATHS=1/export COMPOSE_CONVERT_WINDOWS_PATHS=0/g' 'docker/bin/environment/docker-compose.sh'
-	fi
-	docker/sdk boot deploy.dev.yml
-	docker/sdk up
-	terminal-notifier -title "Terminal" -message "Done with task! Exit status: $?" -sound "default"
+
+    echo "Do you want to apply git hooks?";
+    terminal-notifier -title "Terminal" -message "Prompt for applying git hooks" -sound "default" -activate com.apple.Terminal
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes )
+                rm .git/hooks/pre-commit.sample
+                cp ~/dotfiles/spryker.pre-commit.sample .git/hooks/pre-commit
+                cp ~/dotfiles/spryker.post-checkout.sample .git/hooks/post-checkout
+                chmod +x .git/hooks/pre-commit
+                chmod +x .git/hooks/post-checkout
+                break;;
+            No ) break;;
+        esac
+    done
+
+    cd docker;
+    echo "Which docker branch do you use?";
+    terminal-notifier -title "Terminal" -message "Prompt for select docker branch" -sound "default" -activate com.apple.Terminal
+    select branch in "master" "apple-m1-adjustments"; do
+        case $branch in
+            master ) git checkout master; break;;
+            apple-m1-adjustments ) git checkout apple-m1-adjustments; break;;
+        esac
+    done
+    cd ..;
+
+    echo "Do you want to boot the project?";
+    terminal-notifier -title "Terminal" -message "Prompt for booting project" -sound "default" -activate com.apple.Terminal
+
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) spy boot deploy.dev.yml; spy up; notify; break;;
+            No ) break;;
+        esac
+    done
+
+    ps;
 }
 function sp:csc() {
-    local module="${1-}"
+    echo "=================== Validating propel files ===============";
+    spy cli vendor/bin/console propel:schema:validate;
+    spy cli vendor/bin/console propel:schema:validate-xml-names;
+
+    echo "=================== Validating transfers ===============";
+    spy cli vendor/bin/console transfer:validate;
+
+    echo "=================== Fixing stylelint ===============";
+    spy cli npm run yves:stylelint:fix
+
+    echo "=================== Fixing TSlint ===============";
+    spy cli npm run yves:tslint:fix
+
+    echo "=================== Fixing TSlint ===============";
+    spy cli npm run formatter:fix
+
+    echo "=================== Validating FE stylelint ===============";
+    spy cli npm run yves:stylelint
+
+    echo "=================== Validating TSlint ===============";
+    spy cli npm run yves:tslint
+
+    echo "=================== Validating formatter ===============";
+    spy cli npm run formatter
 
     echo "=================== Fixing code styling ===============";
-    docker/sdk console c:s:s -f -m $module;
+    spy cli vendor/bin/console code:sniff:style -f;
 
     echo "=================== Checking non-fixable code styling ===============";
-    docker/sdk console c:s:s -m $module;
+    spy cli vendor/bin/console code:sniff:style;
 
     echo "=================== PHP MD ===============";
-    docker/sdk console c:s:a -m $module -p 2 -vv;
+    spy cli vendor/bin/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2;
 
     echo "=================== PHP Stan ===============";
-    docker/sdk console code:phpstan -l 5 -m $module;
-
-    rm architecture-baseline.json
+    spy cli vendor/bin/phpstan analyze -l 5 -c phpstan.neon src/;
 
     notify;
 }
@@ -158,18 +228,18 @@ function sp:import() {
 
     if [ -z "$importer" ]
     then
-        docker/sdk console data:import $@;
+        spy console data:import $@;
      else
          if [[ $importer == -* ]] || [[ $importer == --* ]]
          then
-            docker/sdk console data:import $@;
+            spy console data:import $@;
         else
-            docker/sdk console data:import:$importer ${@:2};
+            spy console data:import:$importer ${@:2};
          fi
     fi
 
-    docker/sdk console queue:worker:start -s;
-    docker/sdk console cache:empty-all;
+    spy console queue:worker:start -s;
+    spy console cache:empty-all;
 }
 
 # Symfony aliases
