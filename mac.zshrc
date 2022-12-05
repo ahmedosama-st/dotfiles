@@ -191,24 +191,6 @@ function sp:csc() {
     echo "=================== Validating transfers ===============";
     spy cli vendor/bin/console transfer:validate;
 
-    echo "=================== Fixing stylelint ===============";
-    spy cli npm run yves:stylelint:fix
-
-    echo "=================== Fixing TSlint ===============";
-    spy cli npm run yves:tslint:fix
-
-    echo "=================== Fixing TSlint ===============";
-    spy cli npm run formatter:fix
-
-    echo "=================== Validating FE stylelint ===============";
-    spy cli npm run yves:stylelint
-
-    echo "=================== Validating TSlint ===============";
-    spy cli npm run yves:tslint
-
-    echo "=================== Validating formatter ===============";
-    spy cli npm run formatter
-
     echo "=================== Fixing code styling ===============";
     spy cli vendor/bin/console code:sniff:style -f;
 
@@ -268,7 +250,7 @@ function wlop() {
 }
 
 
-export GITHUB_TOKEN=
+export GITHUB_TOKEN=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
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
