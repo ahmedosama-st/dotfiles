@@ -42,7 +42,8 @@ nmap <leader>gi :action GotoImplementation<cr>
 nmap <leader>gs :action GotoSuperMethod<cr>
 nmap <leader>ghb :action Git.Branches<cr>
 nmap <leader>ghp :action Git.Pull<cr>
-nmap <leader>ghr :action Git.Configure.Remotes<cr>
+nmap <leader>ghr :action Compare.Selected<cr>
+nmap <leader>ghc :action Git.CompareWithBranch<cr>
 nmap ,l :action ChooseRunConfiguration<cr>
 nmap ,; :action ChooseDebugConfiguration<cr>
 nmap <leader>ghd :action Compare.SameVersion<cr>
