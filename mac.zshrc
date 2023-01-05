@@ -250,7 +250,7 @@ function wlop() {
 }
 
 
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
