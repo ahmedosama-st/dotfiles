@@ -66,7 +66,13 @@ function gfl () {
     fi
 }
 function gi() {
-    git restore phpstan.neon
+    local working_dir=$(pwd);
+    local sub="spryker";
+
+    if [[ "$working_dir" == *"$sub"* ]]; then
+        git restore phpstan.neon
+    fi
+
     local message=${1:-}
     local skip=${2:-}
     local currentBranch=$(git branch --show-current --abbrev);
@@ -79,7 +85,10 @@ function gi() {
     else
         git commit -m "$ticketNumber: $message";
     fi
-    cp ~/dotfiles/phpstan.neon .
+    
+    if [[ "$working_dir" == *"$sub"* ]]; then
+        cp ~/dotfiles/phpstan.neon .
+    fi
 }
 #function gc() {
 #      local skip=${1:-}
@@ -107,13 +116,14 @@ alias spy="docker/sdk ";
 alias sp:off="spy down; docker system prune -a --volumes -f; spy clean-data; spy clean; rm -rf src/Generated; rm -rf vendor; rm -rf node_modules; notify";
 alias sp:on="spy boot deploy.dev.yml; spy up; notify";
 alias sp:reset="sp:off && sp:on";
-alias sp:cdo="docker/sdk cli composer dump-autoload -o";
-alias sp:cr="docker/sdk cli composer require ";
-alias sp:ci="docker/sdk cli composer install";
-alias sp:ce="spy console c:e";
+alias sp:cdo="spy cli composer dump-autoload -o";
+alias sp:cr="spy cli composer require ";
+alias sp:ci="spy cli composer install";
+alias sp:ce="spy console transfer:generate; spy console propel:install; spy console c:e";
 function  sp:cc
 {
     spy cli composer dump-autoload -o;
+    spy cli composer install;
     spy console cache:class-resolver:build;
     spy console search:setup:source-map;
     spy console cache:empty-all;
@@ -135,7 +145,7 @@ function  sp:cc
 function sp:install () {
 	local repo="${1-}"
 
-	hub clone spryker-projects/$repo
+	git clone git@github.com:spryker-projects/$repo
 	cd $repo
 
     echo "Enter your git work email: "
@@ -201,7 +211,7 @@ function sp:csc() {
     spy cli vendor/bin/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2;
 
     echo "=================== PHP Stan ===============";
-    spy cli vendor/bin/phpstan analyze -l 5 -c phpstan.neon src/;
+    spy cli vendor/bin/phpstan analyze -l 5 -c phpstan.neon --memory-limit=-1 src/;
 
     notify;
 }
@@ -250,7 +260,9 @@ function wlop() {
 }
 
 
+
 export GITHUB_TOKEN=
+export COMPOSER_GITHUB_TOKEN=
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
