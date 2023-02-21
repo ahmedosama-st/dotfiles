@@ -2,14 +2,10 @@ sdk = ./docker/sdk
 cli = $(sdk) cli
 console = $(sdk) console
 bin = ./vendor/bin
+npm = $(cli) npm
+composer = $(cli) composer
 
 # Docker --------------------------------------------------------------------- #
-cli:
-	$(cli)
-
-console:
-	$(console)
-
 up:
 ifdef file
 	$(sdk) boot $(file)
@@ -39,12 +35,6 @@ else
 	@echo "You must define a region for this command \nEx: make destructive region=US"
 endif
 
-composer:
-	$(cli) composer
-
-npm:
-	$(cli) npm
-
 # App ------------------------------------------------------------------------ #
 generate:
 	$(console) transfer:generate
@@ -60,7 +50,6 @@ ifdef importer
 else
 	$(console) data:import
 endif
-
 	$(console) queue:worker:start
 	make cache
 
@@ -74,9 +63,9 @@ cache:
 	$(console) translator:clean-cache
 	$(console) translator:generate-cache
 	$(console) twig:cache:warmer
-	make npm install
-	make npm run dev
-	make composer dump-autoload -o
+	$(npm) install
+	$(npm) run dev
+	$(composer) dump-autoload -o
 
 checkout:
 	make generate
