@@ -1,89 +1,96 @@
-sdk = ./docker/sdk
-cli = $(sdk) cli
-console = $(sdk) console
-bin = ./vendor/bin
-npm = $(cli) npm
-composer = $(cli) composer
+SDK = ./docker/sdk
+CLI = $(SDK) cli
+CONSOLE = $(SDK) console
+BIN = ./vendor/bin
+NPM = $(CLI) npm
+COMPOSER = $(CLI) composer
 
 # Docker --------------------------------------------------------------------- #
-up:
+up: ## If provided a file, boots with it then runs the up command
 ifdef file
-	$(sdk) boot $(file)
-	$(sdk) up
-else
-	@echo "You must define a deployment env for this command \nEx: make up file=deploy.dev.yml"
+	$(SDK) boot $(file)
 endif
+	$(SDK) up
 
 down:
-	$(sdk) down
+	$(SDK) down
 
-reset:
+reset: ## Performs a full reset for the application
 	make down;
 	docker system prune -a --volumes -f;
-	$(sdk) clean-data;
-	$(sdk) clean;
+	$(SDK) clean-data;
+	$(SDK) clean;
 	rm -rf src/Generated;
 	rm -rf src/Orm;
 	rm -rf vendor;
 	rm -rf node_modules;
 	make up;
 
-destructive:
+destructive: ## Run destructive deployment ex: make destructive region=US
 ifdef region
-	$(cli) vendor/bin/install -r $(region)/destructive.yml
+	$(CLI) vendor/bin/install -r $(region)/destructive.yml
 else
 	@echo "You must define a region for this command \nEx: make destructive region=US"
 endif
 
 # App ------------------------------------------------------------------------ #
-generate:
-	$(console) transfer:generate
-	$(console) propel:install
+generate: ## Generates transfers, propel and IDE completion
+	$(CONSOLE) transfer:generate
+	$(CONSOLE) propel:install
 	make ide
 
-ide:
-	$(console) dev:ide-auto-completion:generate
+ide: ## Generates ide completion
+	$(CONSOLE) dev:ide-auto-completion:generate
 
-import:
+import: ## Runs data import for either a specific file or all imports ex: make import importer="glossary"
 ifdef importer
-	$(console) data:import:$(importer)
+	$(CONSOLE) data:import:$(importer)
 else
-	$(console) data:import
+	$(CONSOLE) data:import
 endif
-	$(console) queue:worker:start
+	$(CONSOLE) queue:worker:start
 	make cache
 
-cache:
-	$(console) cache:class-resolver:build
-	$(console) search:setup:source-map
-	$(console) cache:empty-all
-	$(console) navigation:build-cache
-	$(console) router:cache:warm-up:backoffice
-	$(console) router:cache:warm-up:backend-gateway
-	$(console) translator:clean-cache
-	$(console) translator:generate-cache
-	$(console) twig:cache:warmer
-	$(npm) install
-	$(npm) run dev
-	$(composer) dump-autoload -o
+cache: ## Clears all the cache, rebuilds frontend and dumps composer autoload
+	$(CONSOLE) cache:class-resolver:build
+	$(CONSOLE) search:setup:source-map
+	$(CONSOLE) cache:empty-all
+	$(CONSOLE) navigation:build-cache
+	$(CONSOLE) router:cache:warm-up:backoffice
+	$(CONSOLE) router:cache:warm-up:backend-gateway
+	$(CONSOLE) translator:clean-cache
+	$(CONSOLE) translator:generate-cache
+	$(CONSOLE) twig:cache:warmer
+	$(NPM) install
+	$(NPM) run dev
+	$(COMPOSER) dump-autoload -o
 
-checkout:
+checkout: ## Sets up branch with new transfers, propel tables, imports and clears cache
 	make generate
 	make import
 	make cache
 
+composer: ## Run a composer command ex: make composer args="install"
+	$(COMPOSER) $(args)
+
+console: ## Run a console command ex: make console args="code:phpstan"
+	$(CONSOLE) $(args)
+
+npm: ## Run a npm command ex: make npm args="run dev"
+	$(NPM) $(args)
+
 # Linters-php ---------------------------------------------------------------- #
 stan:
-	$(cli) $(bin)/phpstan analyse -l 5 -c phpstan.neon --memory-limit=-1 src/
+	$(CLI) $(BIN)/phpstan analyse -l 5 -c phpstan.neon --memory-limit=-1 src/
 
 phpmd:
-	$(cli) $(bin)/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2
+	$(CLI) $(BIN)/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2
 
 sniff:
 ifeq (fix, $(filter fix,$(MAKECMDGOALS)))
-	$(console) code:sniff:style -f
+	$(CONSOLE) code:sniff:style -f
 else
-	$(console) code:sniff:style
+	$(CONSOLE) code:sniff:style
 endif
 
 # Ci ------------------------------------------------------------------------- #
