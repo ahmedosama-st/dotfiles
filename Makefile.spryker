@@ -4,6 +4,7 @@ CONSOLE = $(SDK) console
 BIN = ./vendor/bin
 NPM = $(CLI) npm
 COMPOSER = $(CLI) composer
+COMMAND := $(filter-out $@,$(MAKECMDGOALS))
 
 # Docker --------------------------------------------------------------------- #
 up: ## If provided a file, boots with it then runs the up command
@@ -14,6 +15,12 @@ endif
 
 down:
 	$(SDK) down
+
+stop:
+	$(SDK) stop
+
+start:
+	$(SDK) start
 
 reset: ## Performs a full reset for the application
 	make down;
@@ -57,7 +64,7 @@ cache: ## Clears all the cache, rebuilds frontend and dumps composer autoload
 	$(CONSOLE) cache:empty-all
 	$(CONSOLE) navigation:build-cache
 	$(CONSOLE) router:cache:warm-up:backoffice
-	$(CONSOLE) router:cache:warm-up:backend-gateway
+	$(CONSOLE) router:cache:warm-up:backend-gatewaygg
 	$(CONSOLE) translator:clean-cache
 	$(CONSOLE) translator:generate-cache
 	$(CONSOLE) twig:cache:warmer
@@ -71,13 +78,16 @@ checkout: ## Sets up branch with new transfers, propel tables, imports and clear
 	make cache
 
 composer: ## Run a composer command ex: make composer args="install"
-	$(COMPOSER) $(args)
+	$(CLI) $(COMMAND)
 
 console: ## Run a console command ex: make console args="code:phpstan"
-	$(CONSOLE) $(args)
+	$(SDK) $(COMMAND)
+
+test:
+	$(CLI) codecept
 
 npm: ## Run a npm command ex: make npm args="run dev"
-	$(NPM) $(args)
+	$(CLI) $(COMMAND)
 
 # Linters-php ---------------------------------------------------------------- #
 stan:
@@ -98,3 +108,6 @@ ci:
 	make sniff;
 	make stan;
 	make phpmd;
+
+%:
+	@:
