@@ -5,6 +5,7 @@ BIN = ./vendor/bin
 NPM = $(CLI) npm
 COMPOSER = $(CLI) composer
 COMMAND := $(filter-out $@,$(MAKECMDGOALS))
+SHELL := /bin/zsh
 
 # Docker --------------------------------------------------------------------- #
 up: ## If provided a file, boots with it then runs the up command
@@ -24,11 +25,9 @@ start:
 
 reset: ## Performs a full reset for the application
 	make down;
-	docker system prune -a --volumes -f;
 	$(SDK) clean-data;
 	$(SDK) clean;
 	rm -rf src/Generated;
-	rm -rf src/Orm;
 	rm -rf vendor;
 	rm -rf node_modules;
 	make up;
@@ -59,55 +58,73 @@ endif
 	make cache
 
 cache: ## Clears all the cache, rebuilds frontend and dumps composer autoload
+	$(COMPOSER) dump-autoload -o
 	$(CONSOLE) cache:class-resolver:build
 	$(CONSOLE) search:setup:source-map
 	$(CONSOLE) cache:empty-all
 	$(CONSOLE) navigation:build-cache
 	$(CONSOLE) router:cache:warm-up:backoffice
-	$(CONSOLE) router:cache:warm-up:backend-gatewaygg
+	$(CONSOLE) router:cache:warm-up:backend-gateway
 	$(CONSOLE) translator:clean-cache
 	$(CONSOLE) translator:generate-cache
 	$(CONSOLE) twig:cache:warmer
-	$(NPM) install
-	$(NPM) run dev
-	$(COMPOSER) dump-autoload -o
 
 checkout: ## Sets up branch with new transfers, propel tables, imports and clears cache
 	make generate
 	make import
 	make cache
 
-composer: ## Run a composer command ex: make composer args="install"
+composer: ## Run a composer command ex: make composer install
 	$(CLI) $(COMMAND)
 
-console: ## Run a console command ex: make console args="code:phpstan"
+console: ## Run a console command ex: make console code:phpstan
 	$(SDK) $(COMMAND)
 
-test:
-	$(CLI) codecept
+cli: ## Run a console command ex: make cli spryk:run AddModule
+	$(SDK) $(COMMAND)
 
-npm: ## Run a npm command ex: make npm args="run dev"
+npm: ## Run a npm command ex: make npm install
 	$(CLI) $(COMMAND)
+
+spryks:
+	$(CLI) $(BIN)/spryk-dump --level=all
+
+spryk:
+	$(CLI) $(BIN)/spryk-run $(args)
+
+deps:
+	$(CONSOLE) dev:dependency:find ${module}
+
+deps-fix:
+	$(CONSOLE) dev:dependency:fix ${module}
 
 # Linters-php ---------------------------------------------------------------- #
 stan:
-	$(CLI) $(BIN)/phpstan analyse -l 5 -c phpstan.neon --memory-limit=-1 src/
+ifdef module
+	$(CONSOLE) code:phpstan -m $(module) -l 5
+else
+	@echo "You must define a module for this command \nEx: make stan module=SprykerDemo.MerchantReview"
+endif
 
 phpmd:
-	$(CLI) $(BIN)/phpmd src/ text vendor/spryker/architecture-sniffer/src/ruleset.xml --minimumpriority 2
+ifdef module
+	$(CONSOLE) code:sniff:architecture -m $(module) -p 2
+else
+	@echo "You must define a module for this command \nEx: make phpmd module=SprykerDemo.MerchantReview"
+endif
 
 sniff:
 ifeq (fix, $(filter fix,$(MAKECMDGOALS)))
-	$(CONSOLE) code:sniff:style -f
+	$(CONSOLE) code:sniff:style -f -m $(module)
 else
-	$(CONSOLE) code:sniff:style
+	$(CONSOLE) code:sniff:style -m $(module)
 endif
 
 # Ci ------------------------------------------------------------------------- #
 ci:
-	make sniff;
-	make stan;
-	make phpmd;
+	make sniff $(module);
+	make stan $(module);
+	make phpmd $(module);
 
 %:
 	@:

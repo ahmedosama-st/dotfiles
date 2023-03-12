@@ -9,7 +9,6 @@ source $ZSH/oh-my-zsh.sh
 alias ps="phpstorm ."
 alias ws="webstorm ."
 alias zshrc="vim $HOME/.zshrc"
-alias omz="vim $HOME/.oh-my-zsh"
 alias src="source $HOME/.zshrc"
 alias cpssh="pbcopy < ~/.ssh/id_ed25519.pub"
 alias ports="sudo lsof -PiTCP -sTCP:LISTEN"
@@ -40,6 +39,15 @@ alias pf="phpunit --filter "
 # Github aliases
 alias ghc="gh pr create"
 alias ghv="gh pr view --web"
+function gfl () {
+    local pre_to_head="${1-}"
+
+    if [[ -z "$pre_to_head" ]]; then
+        git diff-tree --no-commit-id --name-only -r HEAD
+    else
+        git diff-tree --no-commit-id --name-only -r HEAD~$pre_to_head
+    fi
+}
 function ght() {
     local currentBranch=$(git branch --show-current --abbrev);
     local ticketNumber=$(echo "$currentBranch" | cut -d '-' -f1 -f2 | cut -d '_' -f1);
@@ -56,21 +64,14 @@ alias gpl="git pull"
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias nah="git reset --hard;git clean -df"
 alias dracarys="git reset --hard;git clean -df"
-function gfl () {
-    local pre_to_head="${1-}"
 
-    if [[ -z "$pre_to_head" ]]; then
-        git diff-tree --no-commit-id --name-only -r HEAD
-    else
-        git diff-tree --no-commit-id --name-only -r HEAD~$pre_to_head
-    fi
-}
 function gi() {
     local working_dir=$(pwd);
     local sub="spryker";
 
     if [[ "$working_dir" == *"$sub"* ]]; then
         git restore phpstan.neon
+        rm Makefile
     fi
 
     local message=${1:-}
@@ -85,20 +86,12 @@ function gi() {
     else
         git commit -m "$ticketNumber: $message";
     fi
-    
+
     if [[ "$working_dir" == *"$sub"* ]]; then
         cp ~/dotfiles/phpstan.neon .
+        cp ~/dotfiles/Makefile.spryker Makefile
     fi
 }
-#function gc() {
-#      local skip=${1:-}
-#
-#      if [[ $skip == "-s" ]]; then
-#          SKIP=1 git checkout 
-#      else
-#          git checkout 
-#      fi
-#}
 
 # Composer aliases
 alias cdo="composer dump-autoload -o"
@@ -148,48 +141,14 @@ function sp:install () {
 	git clone git@github.com:spryker-projects/$repo
 	cd $repo
 
-    echo "Enter your git work email: "
-    terminal-notifier -title "Terminal" -message "Prompt for work email" -sound "default" -activate com.apple.Terminal
-    read work_email
-    git config user.email $work_email
+    git config user.email "ahmed.osama@spryker.com"
 
 	git clone git@github.com:spryker/docker-sdk.git docker
 
-    echo "Do you want to apply git hooks?";
-    terminal-notifier -title "Terminal" -message "Prompt for applying git hooks" -sound "default" -activate com.apple.Terminal
-    select yn in "Yes" "No"; do
-        case $yn in
-            Yes )
-                rm .git/hooks/pre-commit.sample
-                cp ~/dotfiles/spryker.pre-commit.sample .git/hooks/pre-commit
-                cp ~/dotfiles/spryker.post-checkout.sample .git/hooks/post-checkout
-                chmod +x .git/hooks/pre-commit
-                chmod +x .git/hooks/post-checkout
-                break;;
-            No ) break;;
-        esac
-    done
+    spy boot deploy.dev.yml; spy up; notify; 
 
-    cd docker;
-    echo "Which docker branch do you use?";
-    terminal-notifier -title "Terminal" -message "Prompt for select docker branch" -sound "default" -activate com.apple.Terminal
-    select branch in "master" "apple-m1-adjustments"; do
-        case $branch in
-            master ) git checkout master; break;;
-            apple-m1-adjustments ) git checkout apple-m1-adjustments; break;;
-        esac
-    done
-    cd ..;
-
-    echo "Do you want to boot the project?";
-    terminal-notifier -title "Terminal" -message "Prompt for booting project" -sound "default" -activate com.apple.Terminal
-
-    select yn in "Yes" "No"; do
-        case $yn in
-            Yes ) spy boot deploy.dev.yml; spy up; notify; break;;
-            No ) break;;
-        esac
-    done
+    cp ~/dotfiles/Makefile.spryker Makefile
+    cp ~/dotfiles/phpstan.neon phpstan.neon
 
     ps;
 }
@@ -259,8 +218,6 @@ function wlop() {
     lsof -nP -i4TCP:"$1" | grep LISTEN
 }
 
-
-
 export GITHUB_TOKEN=
 export COMPOSER_GITHUB_TOKEN=
 
@@ -272,3 +229,5 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export STARSHIP_CONFIG=~/.config/starship.toml
 
 eval "$(starship init zsh)"
+
+source /Users/ahmedosama/.docker/init-zsh.sh || true # Added by Docker Desktop
