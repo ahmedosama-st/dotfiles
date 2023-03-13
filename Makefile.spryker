@@ -25,9 +25,9 @@ start:
 
 reset: ## Performs a full reset for the application
 	make down;
-	$(SDK) clean-data;
-	$(SDK) clean;
+	$(SDK) prune --f --a;
 	rm -rf src/Generated;
+	rm -Rf data/cache/propel && rm -Rf src/Orm/Zed/*/*/Base/ && rm -Rf src/Orm/Zed/*/*/Map;
 	rm -rf vendor;
 	rm -rf node_modules;
 	make up;
