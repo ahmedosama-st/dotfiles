@@ -25,7 +25,7 @@ start:
 
 reset: ## Performs a full reset for the application
 	make down;
-	$(SDK) prune --f --a;
+	$(SDK) clean;
 	rm -rf src/Generated;
 	rm -Rf data/cache/propel && rm -Rf src/Orm/Zed/*/*/Base/ && rm -Rf src/Orm/Zed/*/*/Map;
 	rm -rf vendor;
@@ -57,7 +57,7 @@ endif
 	make cache
 
 cache: ## Clears all the cache, rebuilds frontend and dumps composer autoload
-	$(COMPOSER) dump-autoload -o
+	$(COMPOSER) dump-autoload
 	$(CONSOLE) cache:class-resolver:build
 	$(CONSOLE) search:setup:source-map
 	$(CONSOLE) cache:empty-all
@@ -121,6 +121,7 @@ endif
 
 # Ci ------------------------------------------------------------------------- #
 ci:
+	make sniff fix $(module);
 	make sniff $(module);
 	make stan $(module);
 	make phpmd $(module);
