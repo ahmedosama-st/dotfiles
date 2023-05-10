@@ -1,3 +1,5 @@
+Plug 'easymotion/vim-easymotion'
+
 set rnu
 set number
 set idearefactormode=insert
@@ -7,13 +9,15 @@ set clipboard+=unnamed
 set highlightedyank
 set surround
 set NERDTree
+set easymotion
 set scrolloff=18
 let mapleader = " "
+set scroll=18
 
 " Editor remaps
+map <leader>f <Plug>(easymotion-f)
+map <leader>j <Plug>(easymotion-s)
 imap jk <Esc>
-nnoremap <M-d> <C-d>
-nnoremap <M-u> <C-u>
 nnoremap s _
 nnoremap e $
 
@@ -23,18 +27,22 @@ nmap <C-l> <C-w><C-l>
 nmap <C-j> <C-w><C-j>
 nmap <C-k> <C-w><C-k>
 nmap <leader>. <C-w>o
+nmap <D-d> <C-d>
 nmap <M-d> <C-d>
+nmap <D-u> <C-u>
 nmap <M-u> <C-u>
 
 " Actions remaps
 nmap <leader>sl :action SplitVertically<cr>
 nmap <leader>sv :action SplitHorizontally<cr>
-nmap <S-k> :action MoveStatementUp<cr>
-nmap <S-j> :action MoveStatementDown<cr>
+nmap <leader>e :e ~/.ideavimrc<cr>
+nmap <S-k> :action MoveLineUp<cr>
+nmap <S-j> :action MoveLineDown<cr>
 nmap gp :action RecentFiles<cr>
 nmap ge :action GotoNextError<cr>
 nmap gE :action GotoPreviousError<cr>
-nmap <leader><leader> :action ShowErrorDescription<cr>
+nmap <leader>k :action ShowErrorDescription<cr>
+nmap <leader>t :action ActivateTerminalToolWindow<cr>
 nmap <leader>r :action ReformatCode<cr>
 nmap <leader>o :action OptimizeImports<cr>
 nmap <leader>sb :action ViewStatusBar<cr>
@@ -44,15 +52,18 @@ nmap <leader>ghb :action Git.Branches<cr>
 nmap <leader>ghp :action Git.Pull<cr>
 nmap <leader>ghr :action Compare.Selected<cr>
 nmap <leader>ghc :action Git.CompareWithBranch<cr>
+nmap <leader>ghs :action Git.Stash<cr>
+nmap <leader>ghus :action Git.Unstash<cr>
 nmap ,l :action ChooseRunConfiguration<cr>
 nmap ,; :action ChooseDebugConfiguration<cr>
 nmap <leader>ghd :action Compare.SameVersion<cr>
 nmap <leader>se :action com.turbinekreuzberg.plugins.actions.ExtendInPyzAction<cr>
 nmap <leader>dp :action ToggleLineBreakpoint<cr>
-nnoremap <leader>k :action Refactorings.QuickListPopupAction<CR>
 nmap <leader>lrw :e routes/web.php<cr>
 nmap <leader>lra :e routes/api.php<cr>
 nmap <leader>sry :vsplit src/Generated/Yves/Router/codeBucketDE/Pyz/url_generating_routes.php<cr>
 nmap <leader>srz :vsplit src/Generated/Router/Backoffice/codeBucketDE/url_generating_routes.php<cr>
 nmap <leader>xdl :action PhpListenDebugAction<cr>
 nmap <leader>cg :action Generate<cr>
+nmap <leader>gpt :action ActivateChatGPTToolWindow<cr>
+nmap <leader>gha :action Annotate<cr>
